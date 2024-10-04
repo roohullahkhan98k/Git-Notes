@@ -1,0 +1,46 @@
+.container {
+    padding: 15px;
+    margin-left: 110px;
+    margin-right: 110px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 30px;
+  }
+  
+  .card {
+    width: calc(33.33% - 30px); 
+    height: 252px;
+    border-radius: 1px;
+    border: 1px solid #ddd;
+    opacity: 1;
+  }
+  
+.upperDiv {
+  padding: 10px;
+  background-color: #FAFAFA;
+  text-overflow: ellipsis; 
+  overflow: hidden; 
+  word-break: break-word; 
+  height: 60%;
+  display: box;
+  line-clamp: 10;
+}
+  
+  .lowerDiv {
+    padding: 10px;
+    flex-grow: 1;
+  }
+  
+  .ownerInfo {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .pagination {
+    width: 100%;
+    text-align: center;
+    margin-top: 30px;
+    
+  }

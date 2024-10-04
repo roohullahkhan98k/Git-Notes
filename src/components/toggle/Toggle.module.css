@@ -1,0 +1,36 @@
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  margin-left: 110px;
+  margin-right: 110px;
+}
+
+.heading {
+  margin: 0;
+  font-weight: bold;
+  font-size: 24px;
+  flex-shrink: 0; 
+}
+
+.toggleContainer {
+  display: flex;
+  gap: 10px;
+}
+
+.button {
+  background-color: #fff;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.button:hover {
+  background-color: #f0f0f0;
+}
+
+.active {
+  background-color: #E3E3E3;
+}
