@@ -3,16 +3,48 @@ import logo from '../../assets/Emumba Logo .png';
 import { Input, Button } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { Outlet } from 'react-router-dom';
-import { FC } from 'react';
+import { FC, useState, useEffect,useCallback } from 'react';
+import { HeaderProps, User } from '../../models/interfaces';
+import { loginWithGithub } from '../../auth/auth';
+import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
+import app from '../../../firebase';
+import DropdownComponent from './DropdownComponent';
+import { useNavigate } from 'react-router-dom';
 
-interface HeaderProps {
-  onSearch: (query: string) => void; // Add prop for search functionality
-}
+const auth = getAuth(app);
 
 const Header: FC<HeaderProps> = ({ onSearch }) => {
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onSearch(e.target.value); // Trigger onSearch when user types in search bar
-  };
+  const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser as User | null);
+    });
+    return unsubscribe;
+  }, []);
+
+  const handleLogin = useCallback(async () => {
+    const loggedInUser = await loginWithGithub();
+    if (loggedInUser) {
+      setUser(loggedInUser);
+    }
+  }, []);
+
+  const handleSignOut = useCallback(async () => {
+    await signOut(auth);
+    console.log('User logged out:', auth.currentUser);
+    setUser(null);
+    navigate('/');
+  }, [navigate]);
+
+
+  const handleSearch = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onSearch(e.target.value);
+    },
+    [onSearch]
+  );
 
   return (
     <>
@@ -25,9 +57,15 @@ const Header: FC<HeaderProps> = ({ onSearch }) => {
             className={styles['search-bar']}
             placeholder="Search for Gists"
             prefix={<SearchOutlined className={styles['search-icon']} />}
-            onChange={handleSearch} // Handle input changes
+            onChange={handleSearch}
           />
-          <Button className={styles['login-btn']}>Login</Button>
+          {user ? (
+            <DropdownComponent user={user} handleSignOut={handleSignOut} />
+          ) : (
+            <Button className={styles['login-btn']} onClick={handleLogin}>
+              Login
+            </Button>
+          )}
         </div>
       </header>
       <Outlet />

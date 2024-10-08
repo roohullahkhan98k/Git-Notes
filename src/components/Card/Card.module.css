@@ -10,11 +10,42 @@
   
   .card {
     width: calc(33.33% - 30px); 
-    height: 252px;
-    border-radius: 1px;
+    height: 280px;
+    border-radius: 15px;
     border: 1px solid #ddd;
     opacity: 1;
+    padding-bottom: 20px;
+    text-overflow: ellipsis; 
+    overflow: hidden;
+    word-break: break-word; 
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    
   }
+  .card:hover .upperDiv {
+    border: 1px solid #003B44;
+
+  }
+  
+  .card:hover .lowerDiv .ownerInfoAndStats {
+    display: flex;
+    justify-content: space-between;
+    margin-right: 4px;
+    margin-top: 20px;
+  }
+  
+
+  .lowerDiv .stats {
+    display: none;
+  }
+  
+  .card:hover .lowerDiv .stats {
+    display: flex;
+    margin-left: 20px;
+    font-size: 25px;
+    color: #666;
+    gap: 20px;
+  }
+  
   
 .upperDiv {
   padding: 10px;
@@ -23,9 +54,11 @@
   overflow: hidden; 
   word-break: break-word; 
   height: 60%;
-  display: box;
   line-clamp: 10;
 }
+.upperDiv .innerContent {
+    max-width: 80%;
+  }
   
   .lowerDiv {
     padding: 10px;
@@ -35,12 +68,22 @@
   .ownerInfo {
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
   }
   
+  .ownerInfo img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+  }
   .pagination {
     width: 100%;
     text-align: center;
     margin-top: 30px;
+    display: flex;
+    justify-content: flex-end;
     
+  }
+  .UpdatedandDescription {
+    margin-left: 45px;
+    margin-top:  -10px;
   }

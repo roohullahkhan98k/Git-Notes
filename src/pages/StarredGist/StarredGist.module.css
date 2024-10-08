@@ -1,0 +1,6 @@
+.StarredContainer {
+    display: flex;
+    flex-direction: row;
+    padding: 50px;
+    justify-content: center;
+  }

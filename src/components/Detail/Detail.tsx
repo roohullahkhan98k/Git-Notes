@@ -2,11 +2,39 @@ import { useSelector } from 'react-redux';
 import styles from './Detail.module.css';
 import { RootState } from '../../Redux/store';
 import { formatTime } from '../../utils/timeFormatter';
-import { Card, Space } from 'antd';
-import { ForkOutlined, StarOutlined } from '@ant-design/icons';
+import { Card, message, Space } from 'antd';
+import GistActions from '../GistActions/GistActions';
+import { useCallback, useState } from 'react';
+import { FormattedGist } from '../../models/interfaces';
+import { starGist } from '../../utils/gistHelper';
 
 const Detail: React.FC = () => {
   const selectedGist = useSelector((state: RootState) => state.gist.selectedGist);
+  const [starLoading, setStarLoading] = useState<Record<string, boolean>>({});
+  const [starError, setStarError] = useState<Record<string, string>>({});
+
+
+
+
+
+
+  const handleStarClick = useCallback((gist: FormattedGist) => {
+    setStarLoading((prevLoading) => ({ ...prevLoading, [gist.key]: true }));
+    setStarError((prevError) => ({ ...prevError, [gist.key]: '' }));
+  
+    starGist(gist.key)
+      .then(() => {
+        message.success(`Gist ${gist.key} starred successfully`);
+        console.log(`Gist ${gist.key} starred successfully`);
+      })
+      .catch((error) => {
+        setStarError((prevError) => ({ ...prevError, [gist.key]: error.message }));
+        console.error(`Error starring gist ${gist.key}:`, error);
+      })
+      .finally(() => {
+        setStarLoading((prevLoading) => ({ ...prevLoading, [gist.key]: false }));
+      });
+  }, []);
 
   if (!selectedGist) {
     return <div>No Gist Selected</div>;
@@ -14,7 +42,7 @@ const Detail: React.FC = () => {
 
   return (
     <div className={styles.detailContainer}>
-      {/* Upper Div */}
+      
       <div className={styles.upperDiv}>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -33,8 +61,13 @@ const Detail: React.FC = () => {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', color: '#7A7A7A' }}>
             <Space size={10}>
-              <ForkOutlined style={{ fontSize: 25 }} />
-              <StarOutlined style={{ fontSize: 25 }} />
+            <GistActions
+  gist={selectedGist}
+  onStarClick={() => handleStarClick(selectedGist)}
+  disabled={starLoading[selectedGist.key]}
+  error={starError[selectedGist.key]}
+  onForkClick={() => console.log(`Fork clicked for gist ${selectedGist.key}`)}
+/>
             </Space>
           </div>
         </div>
@@ -48,14 +81,11 @@ const Detail: React.FC = () => {
         </div>
       </div>
 
-      {/* Middle and Lower Divs */}
+      
       <Card className={styles.mainContainer} bodyStyle={{ padding: 0 }}>
-        {/* Middle Div */}
         <div className={styles.middleDiv}>
           <p>{selectedGist.gistName}</p>
         </div>
-
-        {/* Lower Div */}
         <div className={styles.lowerDiv}>
           <div dangerouslySetInnerHTML={{ __html: selectedGist.rawContent }} />
         </div>

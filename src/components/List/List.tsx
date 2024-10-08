@@ -1,118 +1,125 @@
-import { Table } from 'antd';
-import { useQuery } from 'react-query';
+import React, { useState, useCallback } from 'react';
+import { Table,message} from 'antd';
+import { useQuery, useQueries } from 'react-query';
+import { fetchGists, fetchRawContent, filterGists, formatGists, starGist } from '../../utils/gistHelper';
+import { FormattedGist, ListProps } from '../../models/interfaces';
 import styles from './List.module.css';
-import { useState } from 'react';
-import { Owner, Gist } from '../../models/interfaces';
-import ApiEndpoints from '../../models/api.enum';
-import { ForkOutlined, StarOutlined } from '@ant-design/icons';
+import GistActions from '../GistActions/GistActions';
+import { formatTime } from '../../utils/timeFormatter';
+import { useDispatch } from 'react-redux';
+import { setSelectedGist } from '../../Redux/gistSlice';
+import { useNavigate } from 'react-router-dom';
 
-interface ListProps {
-  searchQuery: string; 
-}
-
-const token = import.meta.env.VITE_GITHUB_TOKEN;
-
-const columns = [
-  {
-    title: 'Owner',
-    dataIndex: 'owner',
-    key: 'owner',
-    render: (owner: Owner) => (
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <img 
-          src={owner.avatar_url} 
-          alt={owner.login} 
-          style={{ 
-            width: 40, 
-            height: 40, 
-            borderRadius: '50%', 
-            marginRight: 8 
-          }} 
-        />
-        <span>{owner.login}</span>
-      </div>
-    ),
-  },
-  {
-    title: 'Gist Name',
-    dataIndex: 'gistName',
-    key: 'gistName',
-  },
-  {
-    title: 'Type',
-    dataIndex: 'type',
-    key: 'type',
-  },
-  {
-    title: 'Updated At',
-    dataIndex: 'updatedAt',
-    key: 'updatedAt',
-  },
-  {
-    title: 'Actions',
-    key: 'actions',
-    render: () => (
-      <div className={styles.actions}>
-        <ForkOutlined style={{ fontSize: 20 }} />
-        <StarOutlined style={{ fontSize: 20 }} />
-      </div>
-    ),
-  },
-];
-
-const fetchGists = async (page: number, pageSize: number): Promise<Gist[]> => {
-  const response = await fetch(`${ApiEndpoints.GISTS}?per_page=${pageSize}&page=${page}`, {
-    headers: {
-      Authorization: `token ${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Error: ${response.status}`);
-  }
-
-  return response.json();
-};
-
-const List: React.FC<ListProps> = ({ searchQuery }) => {
+const List: React.FC<ListProps> = ({ searchQuery, isAuthenticated }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(8);
+  const [starLoading, setStarLoading] = useState<Record<string, boolean>>({});
+  const [starError, setStarError] = useState<Record<string, string>>({});
+
   const { data, error, isLoading } = useQuery(
-    ['gists', currentPage, pageSize],
-    () => fetchGists(currentPage, pageSize),
-    {
-      keepPreviousData: true,
-    }
+    ['gists', currentPage, pageSize, isAuthenticated],
+    () => fetchGists(currentPage, pageSize, isAuthenticated),
+    { keepPreviousData: true }
   );
+
+  const filteredData = filterGists(data || [], searchQuery);
+  const formattedData = formatGists(filteredData);
+
+  const rawContentQueries = useQueries(
+    formattedData?.map((gist) => ({
+      queryKey: ['rawContent', gist.rawUrl],
+      queryFn: () => fetchRawContent(gist.rawUrl),
+      keepPreviousData: true,
+    })) || []
+  );
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handlePageChange = useCallback(
+    (page: number) => {
+      setCurrentPage(page);
+    },
+    [setCurrentPage]
+  );
+  
+  const handlePageSizeChange = useCallback(
+    (pageSize: number) => {
+      setPageSize(pageSize);
+      setCurrentPage(1); 
+    },
+    [setPageSize, setCurrentPage]
+  );
+  
+  const handleRowClick = useCallback(
+    (gist: FormattedGist, rawContent: string) => {
+      dispatch(setSelectedGist({ ...gist, rawContent }));
+      navigate(`/details/${gist.key}`);
+    },
+    [dispatch, navigate]
+  );  
+  const handleStarClick = useCallback((gist: FormattedGist) => {
+    setStarLoading((prevLoading) => ({ ...prevLoading, [gist.key]: true }));
+    setStarError((prevError) => ({ ...prevError, [gist.key]: '' }));
+  
+    starGist(gist.key)
+      .then(() => {
+        message.success(`Gist ${gist.key} starred successfully`); 
+        console.log(`Gist ${gist.key} starred successfully`);
+      })
+      .catch((error) => {
+        setStarError((prevError) => ({ ...prevError, [gist.key]: error.message }));
+        console.error(`Error starring gist ${gist.key}:`, error);
+      })
+      .finally(() => {
+        setStarLoading((prevLoading) => ({ ...prevLoading, [gist.key]: false }));
+      });
+  }, []);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {(error as Error).message}</div>;
 
-  const filteredData = data?.filter((gist: Gist) => 
-    gist.owner.login.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const formattedData = filteredData?.map((gist: Gist) => ({
-    key: gist.id,
-    owner: gist.owner,
-    gistName: Object.keys(gist.files)[0],
-    type: gist.public ? 'Public' : 'Private',
-    updatedAt: gist.updated_at,
-  }));
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  const handlePageSizeChange = (pageSize: number) => {
-    setPageSize(pageSize);
-    setCurrentPage(1);
-  };
-
   return (
     <div className={styles.container}>
       <Table
-        columns={columns}
+        columns={[
+          {
+            title: 'Owner',
+            dataIndex: 'owner',
+            key: 'owner',
+            render: (owner) => (
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <img
+                  src={owner.avatar_url}
+                  alt={owner.login}
+                  style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
+                />
+                <span>{owner.login}</span>
+              </div>
+            ),
+          },
+          { title: 'Gist Name', dataIndex: 'gistName', key: 'gistName' },
+          { title: 'Type', dataIndex: 'type', key: 'type' },
+          {
+            title: 'Updated At',
+            dataIndex: 'updatedAt',
+            key: 'updatedAt',
+            render: (updatedAt) => <span>{formatTime(updatedAt)}</span>,
+          },
+          {
+            title: 'Actions',
+            key: 'actions',
+            render: (gist) => (
+              <GistActions
+                gist={gist}
+                onStarClick={() => handleStarClick(gist)}
+                disabled={starLoading[gist.key]}
+                error={starError[gist.key]} onForkClick={function (): void {
+                  throw new Error('Function not implemented.');
+                } }              />
+            ),
+          },
+        ]}
         dataSource={formattedData}
         pagination={{
           pageSize,
@@ -122,6 +129,15 @@ const List: React.FC<ListProps> = ({ searchQuery }) => {
           total: 100,
           current: currentPage,
           onChange: handlePageChange,
+        }}
+        onRow={(record, index) => {
+          if (index !== undefined) {
+            const rawContentQuery = rawContentQueries[index];
+            return {
+              onClick: () => handleRowClick(record, rawContentQuery?.data ?? ''),
+            };
+          }
+          return {};
         }}
       />
     </div>

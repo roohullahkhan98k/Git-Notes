@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import styles from './LandingPage.module.css';
-import Toggle from '../components/toggle/toogle'; 
-import List from '../components/List/List';
-import Card from '../components/Card/Card'; 
+import Toggle from '../../components/toggle/toogle'; 
+import List from '../../components/List/List';
+import Card from '../../components/Card/Card'; 
 
 interface LandingPageProps {
   searchQuery: string;
@@ -18,7 +18,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ searchQuery }) => {
   return (
     <div className={styles.container}>
       <Toggle onToggle={handleToggle} />
-      {view === 'list' ? <List searchQuery={searchQuery} /> : <Card searchQuery={searchQuery} />}
+      {view === 'list' ? <List searchQuery={searchQuery} isAuthenticated={false} /> : <Card searchQuery={searchQuery} isAuthenticated={false} key={undefined} />}
     </div>
   );
 };

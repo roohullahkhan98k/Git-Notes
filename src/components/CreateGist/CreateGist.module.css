@@ -1,0 +1,56 @@
+.container {
+    width: 950px;
+    height: 648px;
+    margin: 50px auto;
+    
+  }
+  
+  .heading {
+    font-weight: 400;
+    font-size: 30px;
+    margin-bottom: 20px;
+    position: relative;
+    right: 300px;
+    color: #3D3D3D;
+
+  }
+  
+  .form {
+    background-color: transparent;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+  }
+  
+  .customInput {
+    background-color: transparent !important;
+    border: 1px solid #ccc !important;
+    padding: 10px;
+    width: 100%;
+    margin-bottom: 20px;
+    border-radius: 0px;
+  }
+  
+  
+  .textArea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 0px;
+  }
+  
+  .buttonContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+  }
+  .button {
+    background-color: #003B44;
+    border-radius: 0px;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: 400;
+    color: #fff;
+  }
+  .fileName{
+    width: 250px;;
+  }

@@ -16,9 +16,11 @@ const gistSlice = createSlice({
     setSelectedGist: (state, action: PayloadAction<FormattedGist & { rawContent: string }>) => {
       state.selectedGist = action.payload;
     },
+    clearSelectedGist: (state) => {
+      state.selectedGist = null;
+    },
   },
 });
-
 export const { setSelectedGist } = gistSlice.actions;
 
 export default gistSlice.reducer;

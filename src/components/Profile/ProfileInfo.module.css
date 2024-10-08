@@ -1,0 +1,46 @@
+.leftContainer {
+  width: 300px;
+  height: 666px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+
+  border-radius: 10px;
+
+}
+
+.profilePicture {
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 20px;
+  border: 2px solid #003b44;
+}
+
+.profileName {
+  font-size: 25px;
+  font-weight: 600;
+  color: #003b44;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.viewProfileButton {
+  background-color: #003b44;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.viewProfileButton:hover {
+  background-color: #004d55;
+}
+
+.viewProfileButton a {
+  text-decoration: none;
+  color: #fff;
+}

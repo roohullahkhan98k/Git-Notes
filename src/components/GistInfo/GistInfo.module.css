@@ -1,0 +1,95 @@
+.rightContainer {
+  width: 868px;
+  height: 650px;
+  margin-left: 100px;
+  align-items: center;
+}
+
+.heading {
+  font-size: 30px;
+  font-weight: 400;
+  margin-bottom: 10px;
+}
+
+.cardContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  gap: 30px;
+}
+
+.card {
+  width: 100%;
+  height: 45%;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  opacity: 1;
+  padding-bottom: 20px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  word-break: break-word;
+  margin-bottom: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.card:hover {
+  border: 1px solid #003B44;
+  border-radius: 10px;
+  transform: scale(1.05);
+}
+
+.upperDiv {
+  padding: 10px;
+  background-color: #FAFAFA;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  word-break: break-word;
+  height: 60%;
+}
+
+.lowerDiv {
+  padding: 10px;
+  flex-grow: 1;
+}
+
+.ownerInfo {
+  display: flex;
+  align-items: center;
+  
+}
+
+.ownerInfo img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.stats {
+  display: none;
+}
+
+.card:hover .stats {
+  display: flex;
+  margin-left: 20px;
+  font-size: 25px;
+  color: #666;
+  gap: 20px;
+}
+
+.pagination {
+  width: 100%;
+  text-align: center;
+  margin-top: 30px;
+  display: flex;
+  justify-content: flex-end;
+}
+.starred {
+  color: yellow;
+}
+.card:hover .lowerDiv .ownerInfoAndStats {
+  display: flex;
+  justify-content: space-between;
+  margin-right: 4px;
+  margin-top: 20px;
+}
